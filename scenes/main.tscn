@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://khp2em0xroe7"]
+
+[ext_resource type="Texture2D" uid="uid://bcnn307ucfl0e" path="res://assets/background.png" id="1_xjqa8"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="2_qoee7"]
+[ext_resource type="PackedScene" uid="uid://bh2n24omikxgr" path="res://scenes/tile_map.tscn" id="3_v2u62"]
+
+[node name="Main" type="Node"]
+script = ExtResource("2_qoee7")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_xjqa8")
+offset = Vector2(375, 350)
+
+[node name="TileMap" parent="." instance=ExtResource("3_v2u62")]
