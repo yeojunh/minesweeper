@@ -17,8 +17,8 @@ var hover_layer : int = 4
 
 # atlas coordinates 
 var mine_atlas := Vector2i(4, 0)
+var hover_atlas := Vector2i(6, 0)
 var number_atlas : Array = generate_number_atlas()
-
 # array to store mine coordinates
 var mine_coords := []
 
@@ -90,8 +90,23 @@ func get_all_surrounding_cells(middle_cell):
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	highlight_cell()
+
+func highlight_cell(): 
+	clear_layer(hover_layer)
+	var mouse_pos := local_to_map(get_local_mouse_position())
+	# hover over grass cells or number cells
+	if is_grass(mouse_pos): 
+		set_cell(hover_layer, mouse_pos, tile_id, hover_atlas)
+	elif is_number(mouse_pos): 
+		set_cell(hover_layer, mouse_pos, tile_id, hover_atlas)
 
 # helper functions
 func is_mine(pos): 
 	return get_cell_source_id(mine_layer, pos) != -1
+	
+func is_grass(pos): 
+	return get_cell_source_id(grass_layer, pos) != -1
+	
+func is_number(pos): 
+	return get_cell_source_id(number_layer, pos) != -1
