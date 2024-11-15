@@ -17,6 +17,7 @@ var hover_layer : int = 4
 
 # atlas coordinates 
 var mine_atlas := Vector2i(4, 0)
+var flag_atlas := Vector2i(5, 0)
 var hover_atlas := Vector2i(6, 0)
 var number_atlas : Array = generate_number_atlas()
 # array to store mine coordinates
@@ -88,6 +89,54 @@ func get_all_surrounding_cells(middle_cell):
 					surrounding_cells.append(target_cell)
 	return surrounding_cells
 
+func _input(event): 
+	if event is InputEventMouseButton: 
+		# check if mouse is on game board 
+		if event.position.y < ROWS * CELL_SIZE: 
+			var map_pos := local_to_map(event.position)
+			if event.button_index == MOUSE_BUTTON_LEFT and event.pressed: 
+				# check that there is no flag 
+				if not is_flag(map_pos): 
+					# check if there is a mine 
+					if is_mine(map_pos): 
+						print("Game over")
+					else: 
+						process_left_click(map_pos)
+			# right click places and removes flags 
+			elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed: 
+				process_right_click(map_pos)
+
+func process_left_click(pos): 
+	var revealed_cells := []
+	var cells_to_reveal := [pos]
+	while not cells_to_reveal.is_empty(): 
+		# clear cell and mark it cleared 
+		erase_cell(grass_layer, cells_to_reveal[0])
+		revealed_cells.append(cells_to_reveal[0])
+		# if cell has a flag, then clear it 
+		if is_flag(cells_to_reveal[0]): 
+			erase_cell(flag_layer, cells_to_reveal[0])
+		if not is_number(cells_to_reveal[0]): 
+			cells_to_reveal = reveal_surrounding_cells(cells_to_reveal, revealed_cells)
+		# remove processed cell from array 
+		cells_to_reveal.erase(cells_to_reveal[0])
+
+func process_right_click(pos): 
+	# check if it is a grass cell 
+	if is_grass(pos): 
+		if is_flag(pos): 
+			erase_cell(flag_layer, pos)
+		else: 
+			set_cell(flag_layer, pos, tile_id, flag_atlas)
+
+func reveal_surrounding_cells(cells_to_reveal, revealed_cells): 
+	for i in get_all_surrounding_cells(cells_to_reveal[0]):
+		# check that cell is not already revealed
+		if not revealed_cells.has(i): 
+			if not cells_to_reveal.has(i): 
+				cells_to_reveal.append(i) 
+	return cells_to_reveal
+		
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	highlight_cell()
@@ -110,3 +159,6 @@ func is_grass(pos):
 	
 func is_number(pos): 
 	return get_cell_source_id(number_layer, pos) != -1
+
+func is_flag(pos): 
+	return get_cell_source_id(flag_layer, pos) != -1
