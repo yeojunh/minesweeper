@@ -1,5 +1,9 @@
 extends TileMap
 
+# signals to connect to main
+signal flag_placed 
+signal flag_removed 
+
 # grid variables 
 const ROWS : int = 14
 const COLS : int = 15
@@ -116,6 +120,7 @@ func process_left_click(pos):
 		# if cell has a flag, then clear it 
 		if is_flag(cells_to_reveal[0]): 
 			erase_cell(flag_layer, cells_to_reveal[0])
+			flag_removed.emit()
 		if not is_number(cells_to_reveal[0]): 
 			cells_to_reveal = reveal_surrounding_cells(cells_to_reveal, revealed_cells)
 		# remove processed cell from array 
@@ -126,8 +131,10 @@ func process_right_click(pos):
 	if is_grass(pos): 
 		if is_flag(pos): 
 			erase_cell(flag_layer, pos)
+			flag_removed.emit()
 		else: 
 			set_cell(flag_layer, pos, tile_id, flag_atlas)
+			flag_placed.emit()
 
 func reveal_surrounding_cells(cells_to_reveal, revealed_cells): 
 	for i in get_all_surrounding_cells(cells_to_reveal[0]):

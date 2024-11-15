@@ -15,3 +15,6 @@ offset = Vector2(375, 350)
 [node name="TileMap" parent="." instance=ExtResource("3_v2u62")]
 
 [node name="HUD" parent="." instance=ExtResource("4_0mqs8")]
+
+[connection signal="flag_placed" from="TileMap" to="." method="_on_tile_map_flag_placed"]
+[connection signal="flag_removed" from="TileMap" to="." method="_on_tile_map_flag_removed"]

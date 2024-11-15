@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://1c478e2kso3g" path="res://assets/timer.png" id="2_pl3b0"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b4xmt"]
-bg_color = Color(0.208336, 0.464261, 0.377819, 1)
+bg_color = Color(0.288312, 0.604905, 0.497009, 1)
 
 [node name="HUD" type="CanvasLayer"]
 
