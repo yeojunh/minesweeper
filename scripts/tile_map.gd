@@ -3,6 +3,8 @@ extends TileMap
 # signals to connect to main
 signal flag_placed 
 signal flag_removed 
+signal end_game
+signal game_won
 
 # grid variables 
 const ROWS : int = 14
@@ -104,6 +106,8 @@ func _input(event):
 					# check if there is a mine 
 					if is_mine(map_pos): 
 						print("Game over")
+						end_game.emit()
+						show_mines()
 					else: 
 						process_left_click(map_pos)
 			# right click places and removes flags 
@@ -157,6 +161,10 @@ func highlight_cell():
 	elif is_number(mouse_pos): 
 		set_cell(hover_layer, mouse_pos, tile_id, hover_atlas)
 
+func show_mines(): 
+	for mine in mine_coords: 
+		if is_mine(mine): 
+			erase_cell(grass_layer, mine)
 # helper functions
 func is_mine(pos): 
 	return get_cell_source_id(mine_layer, pos) != -1

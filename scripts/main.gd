@@ -12,6 +12,9 @@ func _ready() -> void:
 func new_game(): 
 	time_elapsed = 0
 	remaining_mines = TOTAL_MINES
+	$TileMap.new_game()
+	$GameOver.hide()
+	get_tree().paused = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -19,9 +22,23 @@ func _process(delta: float) -> void:
 	$HUD.get_node("Stopwatch").text = str(int(time_elapsed))
 	$HUD.get_node("RemainingMines").text = str(remaining_mines)
 
+func end_game(result): 
+	get_tree().paused = true
+	$GameOver.show()
+	if result == 1: 
+		$GameOver.get_node("Label").text = "YOU WIN!"
+	else: 
+		$GameOver.get_node("Label").text = "BOOM!"
+
 func _on_tile_map_flag_placed() -> void:
 	remaining_mines -= 1
 
 
 func _on_tile_map_flag_removed() -> void:
 	remaining_mines += 1
+
+func _on_tile_map_end_game() -> void:
+	end_game(-1)
+
+func _on_game_over_restart() -> void:
+	new_game()
