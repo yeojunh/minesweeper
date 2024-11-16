@@ -57,7 +57,7 @@ func generate_mines():
 		set_cell(mine_layer, mine_pos, tile_id, mine_atlas)
 
 func generate_numbers(): 
-	#print(get_empty_cells())
+	clear_layer(number_layer)
 	for i in get_empty_cells():
 		var mine_count : int = 0
 		for j in get_all_surrounding_cells(i): 
@@ -105,9 +105,15 @@ func _input(event):
 				if not is_flag(map_pos): 
 					# check if there is a mine 
 					if is_mine(map_pos): 
-						print("Game over")
-						end_game.emit()
-						show_mines()
+						# cannot lose on the first click
+						if get_parent().first_click: 
+							move_mine(map_pos)
+							generate_numbers()
+							process_left_click(map_pos)
+						else: 
+							print("Game over")
+							end_game.emit()
+							show_mines()
 					else: 
 						process_left_click(map_pos)
 			# right click places and removes flags 
@@ -115,6 +121,7 @@ func _input(event):
 				process_right_click(map_pos)
 
 func process_left_click(pos): 
+	get_parent().first_click = false
 	var revealed_cells := []
 	var cells_to_reveal := [pos]
 	while not cells_to_reveal.is_empty(): 
@@ -129,6 +136,13 @@ func process_left_click(pos):
 			cells_to_reveal = reveal_surrounding_cells(cells_to_reveal, revealed_cells)
 		# remove processed cell from array 
 		cells_to_reveal.erase(cells_to_reveal[0])
+	# check if all number tiles are cleared 
+	var all_cleared := true
+	for cell in get_used_cells(number_layer): 
+		if is_grass(cell): 
+			all_cleared = false
+	if all_cleared: 
+		game_won.emit()
 
 func process_right_click(pos): 
 	# check if it is a grass cell 
@@ -165,6 +179,19 @@ func show_mines():
 	for mine in mine_coords: 
 		if is_mine(mine): 
 			erase_cell(grass_layer, mine)
+
+func move_mine(old_pos): 
+	for y in range(ROWS): 
+		for x in range(COLS):
+			if not is_mine(Vector2i(x, y)) and get_parent().first_click == true: 
+				# update array 
+				mine_coords[mine_coords.find(old_pos)] = Vector2i(x, y)
+				# clear old mine
+				erase_cell(mine_layer, old_pos)
+				# set new position
+				set_cell(mine_layer, Vector2i(x, y), tile_id, mine_atlas)
+				get_parent().first_click = false
+	
 # helper functions
 func is_mine(pos): 
 	return get_cell_source_id(mine_layer, pos) != -1

@@ -1,15 +1,17 @@
 extends Node
 
 # game variable 
-const TOTAL_MINES : int = 40
+const TOTAL_MINES : int = 1
 var time_elapsed : float
 var remaining_mines : int
+var first_click : bool
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	new_game()
 
 func new_game(): 
+	first_click = true
 	time_elapsed = 0
 	remaining_mines = TOTAL_MINES
 	$TileMap.new_game()
@@ -40,5 +42,8 @@ func _on_tile_map_flag_removed() -> void:
 func _on_tile_map_end_game() -> void:
 	end_game(-1)
 
+func _on_tile_map_game_won() -> void:
+	end_game(1)
+	
 func _on_game_over_restart() -> void:
 	new_game()

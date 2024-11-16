@@ -23,4 +23,5 @@ process_mode = 2
 [connection signal="end_game" from="TileMap" to="." method="_on_tile_map_end_game"]
 [connection signal="flag_placed" from="TileMap" to="." method="_on_tile_map_flag_placed"]
 [connection signal="flag_removed" from="TileMap" to="." method="_on_tile_map_flag_removed"]
+[connection signal="game_won" from="TileMap" to="." method="_on_tile_map_game_won"]
 [connection signal="restart" from="GameOver" to="." method="_on_game_over_restart"]
