@@ -115,7 +115,6 @@ func _input(event):
 							generate_numbers()
 							process_left_click(map_pos)
 						else: 
-							print("Game over")
 							end_game.emit()
 							show_mines()
 					else: 
