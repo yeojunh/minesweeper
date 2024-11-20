@@ -6,6 +6,9 @@ signal flag_removed
 signal end_game
 signal game_won
 
+# scan nearby mines
+var scanning := false
+
 # grid variables 
 const ROWS : int = 14
 const COLS : int = 15
@@ -26,6 +29,7 @@ var mine_atlas := Vector2i(4, 0)
 var flag_atlas := Vector2i(5, 0)
 var hover_atlas := Vector2i(6, 0)
 var number_atlas : Array = generate_number_atlas()
+
 # array to store mine coordinates
 var mine_coords := []
 
@@ -91,7 +95,7 @@ func get_all_surrounding_cells(middle_cell):
 			target_cell = middle_cell + Vector2i(x - 1, y - 1)
 			# skip cell if it is the middle cell 
 			if target_cell != middle_cell: 
-				if (target_cell.x >= 0 and target_cell.x < COLS - 1  and target_cell.y >= 0 and target_cell.y < ROWS - 1): 
+				if (target_cell.x >= 0 and target_cell.x < COLS  and target_cell.y >= 0 and target_cell.y < ROWS): 
 					surrounding_cells.append(target_cell)
 	return surrounding_cells
 
@@ -165,6 +169,15 @@ func reveal_surrounding_cells(cells_to_reveal, revealed_cells):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	highlight_cell()
+	# scan mines
+	if (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)): 
+		var scan_pos := local_to_map(get_local_mouse_position())
+		if not is_grass(scan_pos): 
+			if scanning == false: 
+				scan_mines(scan_pos)
+				scanning = true
+		else: 
+			scanning = false
 
 func highlight_cell(): 
 	clear_layer(hover_layer)
@@ -174,6 +187,22 @@ func highlight_cell():
 		set_cell(hover_layer, mouse_pos, tile_id, hover_atlas)
 	elif is_number(mouse_pos): 
 		set_cell(hover_layer, mouse_pos, tile_id, hover_atlas)
+
+func scan_mines(pos): 
+	var unflagged_mines : int = 0
+	for i in get_all_surrounding_cells(pos): 
+		# check for any un-mined flags - misplaced flags
+		if is_flag(i) and not is_mine(i): 
+			end_game.emit()
+			show_mines()
+		# check if there are un-flagged mines
+		if is_mine(i) and not is_flag(i): 
+			unflagged_mines += 1
+	if unflagged_mines == 0: 
+		for cell in reveal_surrounding_cells([pos], []):
+			if not is_mine(cell): 
+				process_left_click(cell)
+				
 
 func show_mines(): 
 	for mine in mine_coords: 

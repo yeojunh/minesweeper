@@ -1,7 +1,7 @@
 extends Node
 
 # game variable 
-const TOTAL_MINES : int = 1
+const TOTAL_MINES : int = 10
 var time_elapsed : float
 var remaining_mines : int
 var first_click : bool
